@@ -1,0 +1,22 @@
+# Dependências
+# Ignora a pasta com todos os pacotes baixados
+node_modules/
+
+# Build
+# Ignora a pasta com o código compilado de TypeScript para JavaScript
+dist/
+
+# Logs
+# Ignora logs gerados pelo npm em caso de erro
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos de Ambiente
+# CRUCIAL: Ignora o arquivo com senhas e chaves de API
+.env
+
+# Arquivos de Sistema Operacional
+.DS_Store
+Thumbs.db
+package-lock.json
