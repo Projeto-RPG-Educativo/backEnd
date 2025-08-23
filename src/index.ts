@@ -1,15 +1,22 @@
 import express from 'express';
-import userRoutes from './routes/userRoutes'; // 1. IMPORTAR AS ROTAS DE USUÁRIO
+import dotenv from 'dotenv';
+import userRoutes from './routes/userRoutes';
+import characterRoutes from './routes/characterRoutes';
+
+// Carrega as variáveis de ambiente
+dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
+// Middleware para o Express entender JSON
 app.use(express.json());
 
-// 2. DIZER AO EXPRESS PARA USAR O ROTEADOR DE USUÁRIOS
-// Todas as rotas definidas em userRoutes agora começarão com /api/usuarios
+// Roteadores
 app.use('/api/usuarios', userRoutes);
+app.use('/api/character', characterRoutes);
 
+// Inicia o servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando com sucesso na porta ${PORT}`);
 });

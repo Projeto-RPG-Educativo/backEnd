@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  nome_usuario  String   @unique
+  email         String   @unique
+  senha_hash    String
+  criado_em     DateTime @default(now())
+
+  // Relação: Um usuário tem um personagem
+  character     Character?
+}
+
+model Character {
+  id        Int     @id @default(autoincrement())
+  xp        Int     @default(0)
+  hp        Int
+  // Relação: Um personagem pertence a um usuário
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int     @unique // Garante que um usuário só pode ter um personagem
+}
