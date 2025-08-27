@@ -1,24 +1,27 @@
-# Dependências
-# Ignora a pasta com todos os pacotes baixados
-node_modules/
+# Dependências do Node
+/node_modules
 
-# Build
-# Ignora a pasta com o código compilado de TypeScript para JavaScript
-dist/
-
-# Logs
-# Ignora logs gerados pelo npm em caso de erro
+# Arquivos de Build
+/dist
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Arquivos de Ambiente
-# CRUCIAL: Ignora o arquivo com senhas e chaves de API
+# Arquivos de Cache e Relatórios
+.cache/
+coverage/
+
+# Variáveis de Ambiente
 .env
+.env.test
+
+# Arquivos de Configuração do IDE (Exemplos)
+.vscode/
+.idea/
+
+# Arquivos gerados pelo Prisma
+/.prisma/
 
 # Arquivos de Sistema Operacional
 .DS_Store
 Thumbs.db
-package-lock.json
-
-/src/generated/prisma

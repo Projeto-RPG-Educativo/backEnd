@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import * as battleService from '../services/battleService';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 // Controller para iniciar a batalha
 export const startBattleHandler = async (req: Request, res: Response) => {
@@ -35,3 +38,33 @@ export const submitAnswerHandler = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Erro ao processar a resposta.', error: error.message });
   }
 };
+
+// Nova função para salvar o progresso
+export const saveProgressHandler = async (req: Request, res: Response) => {
+    try {
+        const { characterId, xpGanho, vidaAtual } = req.body;
+
+        if (!characterId) {
+            return res.status(400).json({ error: "ID do personagem é obrigatório." });
+        }
+
+        const personagemAtualizado = await prisma.character.update({
+            where: { id: characterId },
+            data: {
+                xp: { increment: xpGanho },
+                hp: vidaAtual,
+                lastSavedAt: new Date(),
+            },
+            include: {
+                class: true,
+            }
+        });
+
+        res.json(personagemAtualizado);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Falha ao salvar o progresso do personagem.' });
+    }
+};
+

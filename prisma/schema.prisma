@@ -18,13 +18,29 @@ model User {
   character     Character?
 }
 
+model Class {
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  hp           Int
+  mp           Int?
+  strength     Int?
+  intelligence Int?
+  characters   Character[]
+}
+
 model Character {
   id        Int     @id @default(autoincrement())
   xp        Int     @default(0)
   hp        Int
+  lastSavedAt   DateTime @default(now()) 
   // Relação: Um personagem pertence a um usuário
   user      User    @relation(fields: [userId], references: [id])
   userId    Int     @unique // Garante que um usuário só pode ter um personagem
+  // Relação um personagem tem uma classe
+  class     Class    @relation(fields: [classId], references: [id])
+  classId   Int
+  // Relação com o inventário
+  inventory Inventory?
 }
 
 model Question {
@@ -33,7 +49,7 @@ model Question {
   opcao_a         String
   opcao_b         String
   opcao_c         String
-  resposta_correta Char // "A", "B" ou "C"
+  resposta_correta String // "A", "B" ou "C"
   dificuldade     String   // "Fácil", "Médio", "Difícil"
 }
 
@@ -42,4 +58,38 @@ model Monster {
   nome  String
   hp    Int
   dano  Int
+}
+
+model Item {
+  id    Int    @id @default(autoincrement())
+  name  String
+  type  String // Por exemplo: "weapon", "armor", "potion"
+  value Int?   // O valor do item
+  
+  // Relação com o inventário
+  inventories InventoryItem[]
+}
+
+model InventoryItem {
+  id          Int      @id @default(autoincrement())
+  inventoryId Int
+  itemId      Int
+  quantity    Int      @default(1)
+
+  // Relação com Inventory
+  inventory   Inventory @relation(fields: [inventoryId], references: [id])
+  
+  // Relação com Item
+  item        Item      @relation(fields: [itemId], references: [id])
+}
+
+model Inventory {
+  id          Int      @id @default(autoincrement())
+  
+  // Relação com o personagem
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int      @unique // Garante que cada inventário pertence a um único personagem
+  
+  // Relação com InventoryItem (os itens do inventário)
+  items       InventoryItem[]
 }
