@@ -30,6 +30,8 @@ model Class {
 
 model Character {
   id        Int     @id @default(autoincrement())
+  nome      String
+  classe    String
   xp        Int     @default(0)
   hp        Int
   lastSavedAt   DateTime @default(now()) 
