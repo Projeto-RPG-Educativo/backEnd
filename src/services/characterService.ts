@@ -20,8 +20,18 @@ export const updateCharacterProgress = async (characterId: number, xp: number, h
   });
 };
 
-export const createCharacter = async (userId: number, characterData: { nome: string, classe: string, hp: number }) => {
-  // Regra de negócio: Verifica se o usuário já não possui um personagem
+export const createCharacter = async (userId: number, characterData: { nome: string, nomeDaClasse: string }) => {
+  // --- Buscar a classe pelo nome para obter o ID ---
+  const characterClass = await prisma.class.findUnique({
+    where: { name: characterData.nomeDaClasse },
+  });
+
+  // Se a classe escolhida não existir no banco, retorna um erro
+  if (!characterClass) {
+    throw new Error(`Classe '${characterData.nomeDaClasse}' não encontrada.`);
+  }
+
+  // --- Verificar se o usuário já possui um personagem ---
   const existingCharacter = await prisma.character.findUnique({
     where: { userId: userId },
   });
@@ -30,17 +40,32 @@ export const createCharacter = async (userId: number, characterData: { nome: str
     throw new Error('Este usuário já possui um personagem.');
   }
 
-  // Usa o Prisma para criar o novo personagem no banco de dados,
-  // associando-o ao 'userId' do usuário logado.
+  // --- Criar o personagem usando o ID da classe ---
   const newCharacter = await prisma.character.create({
     data: {
       nome: characterData.nome,
-      classe: characterData.classe,
-      hp: characterData.hp, // O HP inicial pode ser passado pelo front ou definido aqui
-      xp: 0, // XP inicial sempre começa com 0
-      userId: userId, // Link com a tabela User
+      hp: characterClass.hp, // Pega o HP inicial da classe!
+      xp: 0,
+      // Conecta com o usuário que está criando o personagem
+      user: {
+        connect: { id: userId },
+      },
+      // Conecta com a classe usando o ID que encontramos
+      class: {
+        connect: { id: characterClass.id },
+      },
+      // ATENÇÃO:verficar o campo classe do character, tipo string, ver se precisa remover
+      classe: characterClass.name, 
     },
   });
+
+  // --- Criar um inventário vazio para o novo personagem ---
+  await prisma.inventory.create({
+    data: {
+      characterId: newCharacter.id
+    }
+  });
+
 
   return newCharacter;
 };
