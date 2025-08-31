@@ -1,25 +1,24 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors'; 
 import userRoutes from './routes/userRoutes';
 import characterRoutes from './routes/characterRoutes';
 import battleRoutes from './routes/battleRoutes';
 
-// Carrega as variáveis de ambiente
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware para o Express entender JSON
+// --- MIDDLEWARES ---
+app.use(cors());
 app.use(express.json());
 
-// Roteadores
+// --- ROTEADORES ---
 app.use('/api/usuarios', userRoutes);
 app.use('/api/character', characterRoutes);
 app.use('/api/batalha', battleRoutes);
 
-// Inicia o servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando com sucesso na porta ${PORT}`);
 });
-

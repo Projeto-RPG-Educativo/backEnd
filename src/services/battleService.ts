@@ -2,22 +2,25 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Simulação de uma "sessão de batalha" em memória.
-// A chave é o ID do usuário para simplificar.
 const activeBattles: any = {};
 
 /**
- * Inicia uma nova batalha para um usuário contra um monstro.
+ * Inicia uma nova batalha. ESTA FUNÇÃO JÁ ESTÁ CORRETA.
  */
 export const startBattle = async (userId: number, monsterId: number) => {
-  const character = await prisma.character.findUnique({ where: { userId } });
+  const character = await prisma.character.findUnique({
+    where: { userId },
+    include: {
+      class: true,
+    },
+  });
+
   const monster = await prisma.monster.findUnique({ where: { id: monsterId } });
 
-  if (!character || !monster) {
-    throw new Error('Personagem ou monstro não encontrado.');
+  if (!character || !monster || !character.class) {
+    throw new Error('Personagem, monstro ou classe não encontrado.');
   }
 
-  // Pega uma pergunta aleatória do banco de dados
   const questionCount = await prisma.question.count();
   const skip = Math.floor(Math.random() * questionCount);
   const firstQuestion = await prisma.question.findFirst({
@@ -28,10 +31,15 @@ export const startBattle = async (userId: number, monsterId: number) => {
     throw new Error('Nenhuma pergunta encontrada no banco de dados.');
   }
 
-  // Cria e armazena o estado inicial da batalha
   const battleState = {
-    battleId: Date.now(), // ID simples para a batalha
-    character: { id: character.id, hp: character.hp },
+    battleId: Date.now(),
+    character: {
+      id: character.id,
+      hp: character.hp,
+      className: character.class.name,
+      strength: character.class.strength || 5,
+      intelligence: character.class.intelligence || 5,
+    },
     monster: { id: monster.id, hp: monster.hp, dano: monster.dano },
     currentQuestion: {
       id: firstQuestion.id,
@@ -42,17 +50,15 @@ export const startBattle = async (userId: number, monsterId: number) => {
   };
 
   activeBattles[userId] = battleState;
-
   return battleState;
 };
 
 /**
- * Processa a resposta de um jogador para uma pergunta.
+ * Processa a resposta, agora com a lógica de dano expandida para todas as classes.
  */
 export const processAnswer = async (userId: number, battleId: number, questionId: number, answer: string) => {
   const battle = activeBattles[userId];
 
-  // Validações de segurança
   if (!battle || battle.battleId !== battleId || battle.isFinished) {
     throw new Error('Batalha inválida ou já finalizada.');
   }
@@ -66,36 +72,58 @@ export const processAnswer = async (userId: number, battleId: number, questionId
   }
 
   let turnResult = '';
+  let damageDealt = 0;
 
-  // Verifica a resposta e calcula o dano
   if (answer.toUpperCase() === question.resposta_correta) {
-    turnResult = `Você acertou! O monstro sofreu dano.`;
-    battle.monster.hp -= 20; // Dano fixo de 20 para simplificar
+    // --- LÓGICA DE DANO ATUALIZADA AQUI ---
+    // Decidimos qual atributo usar com base no nome da classe
+    switch (battle.character.className.toLowerCase()) {
+      // Classes de dano físico usam 'strength'
+      case 'tank':
+      case 'lutador':
+      case 'ladino':
+      case 'paladino':
+        damageDealt = battle.character.strength;
+        break;
+      
+      // Classes de dano mágico/híbrido usam 'intelligence'
+      // Supondo que 'mago' será uma de suas classes
+      case 'mago': 
+      case 'bardo':
+        damageDealt = battle.character.intelligence;
+        break;
+      
+      // Um fallback inteligente: se a classe não for nenhuma das acima,
+      // usa o maior atributo entre força e inteligência.
+      default:
+        damageDealt = Math.max(battle.character.strength, battle.character.intelligence) || 5;
+    }
+
+    battle.monster.hp -= damageDealt;
+    turnResult = `Você acertou! O monstro sofreu ${damageDealt} de dano.`;
+    
   } else {
-    turnResult = `Você errou! O monstro te atacou.`;
     battle.character.hp -= battle.monster.dano;
+    turnResult = `Você errou! O monstro te atacou e causou ${battle.monster.dano} de dano.`;
   }
 
-  // Verifica se a batalha terminou
+  // O resto da função para verificar o fim da batalha permanece o mesmo
   if (battle.monster.hp <= 0) {
     battle.isFinished = true;
     turnResult += ' Você venceu a batalha!';
-    // Atualiza o progresso do personagem no banco de dados
     await prisma.character.update({
       where: { id: battle.character.id },
-      data: { hp: battle.character.hp, xp: { increment: 50 } }, // Ganha 50 XP
+      data: { hp: battle.character.hp, xp: { increment: 50 } },
     });
   } else if (battle.character.hp <= 0) {
     battle.isFinished = true;
     turnResult += ' Você foi derrotado.';
-    // Apenas atualiza a vida do personagem no banco
     await prisma.character.update({
       where: { id: battle.character.id },
       data: { hp: 0 },
     });
   }
 
-  // Se a batalha não terminou, busca a próxima pergunta
   if (!battle.isFinished) {
     const questionCount = await prisma.question.count();
     const skip = Math.floor(Math.random() * questionCount);
@@ -109,10 +137,8 @@ export const processAnswer = async (userId: number, battleId: number, questionId
         opcoes: [nextQuestion.opcao_a, nextQuestion.opcao_b, nextQuestion.opcao_c],
       };
   } else {
-    // Se a batalha terminou, remove a sessão da memória
     delete activeBattles[userId];
   }
   
-  // Retorna o estado atualizado da batalha, incluindo o resultado do turno
   return { ...battle, turnResult };
 };

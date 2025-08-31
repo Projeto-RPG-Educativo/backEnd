@@ -29,19 +29,32 @@ export const registerUser = async (userData: any) => {
 };
 
 export const loginUser = async (nome_usuario: string, senha: string) => {
+  console.log("\n--- [LOGIN SERVICE] TENTATIVA DE LOGIN INICIADA ---");
+  console.log("Recebido - Usuário:", nome_usuario);
+  console.log("Recebido - Senha:", senha);
+
+  // Passo 1: Encontrar o usuário no nosso "banco"
   const user = await prisma.user.findUnique({ where: { nome_usuario: nome_usuario } });
   if (!user) {
+    console.log("FALHA: Usuário não encontrado no banco de dados.");
     throw new Error('Credenciais inválidas.');
   }
+  console.log("SUCESSO: Usuário encontrado:", user);
 
+  // Passo 2: Comparar a senha enviada com o hash salvo no "banco"
   const isPasswordValid = await bcrypt.compare(senha, user.senha_hash);
   if (!isPasswordValid) {
+    console.log("FALHA: A comparação de senhas retornou 'false'. A senha está incorreta.");
     throw new Error('Credenciais inválidas.');
   }
+  console.log("SUCESSO: Senha válida!");
 
+  // Passo 3: Gerar o Token JWT
   const secretKey = process.env.JWT_SECRET || 'sua_chave_secreta_padrao';
   const token = jwt.sign({ id: user.id, nome_usuario: user.nome_usuario }, secretKey, { expiresIn: '1h' });
+  console.log("SUCESSO: Token JWT gerado.");
 
+  // Passo 4: Retornar os dados do usuário e o token
   return {
     message: 'Login bem-sucedido!',
     user: { id: user.id, nome_usuario: user.nome_usuario },
