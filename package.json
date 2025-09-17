@@ -9,6 +9,9 @@
     "test": "jest",
     "setup": "npx prisma migrate deploy && npx prisma generate"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
