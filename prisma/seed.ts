@@ -133,6 +133,17 @@ async function main() {
     data: questionsData,
     skipDuplicates: true,
   });
+
+  const monsters = await prisma.monster.createMany({
+    data: [
+        { nome: 'Diabrete Errôneo', hp: 50, dano: 10 },
+        { nome: 'Esqueleto da Sintaxe', hp: 80, dano: 20 },
+        { nome: 'Lexicógrafo, o Guardião do Vazio', hp: 1500, dano: 40 },
+        { nome: 'Malak, O Silenciador', hp: 5000, dano: 100 },
+    ],
+    skipDuplicates: true,
+});
+console.log(`Foram criados ${monsters.count} monstros.`);
 }
 
 main()
