@@ -15,7 +15,7 @@ model User {
   criado_em     DateTime @default(now())
 
   // Relação: Um usuário tem um personagem
-  character     Character?
+  character     Character[]
 }
 
 model Class {
@@ -37,7 +37,7 @@ model Character {
   lastSavedAt   DateTime @default(now()) 
   // Relação: Um personagem pertence a um usuário
   user      User    @relation(fields: [userId], references: [id])
-  userId    Int     @unique // Garante que um usuário só pode ter um personagem
+  userId    Int  
   // Relação um personagem tem uma classe
   class     Class    @relation(fields: [classId], references: [id])
   classId   Int
@@ -52,7 +52,7 @@ model Question {
   opcao_b         String
   opcao_c         String
   resposta_correta String // "A", "B" ou "C"
-  dificuldade     String   // "Fácil", "Médio", "Difícil"
+  dificuldade     String   // "Facil", "Medio", "Dificil"
 }
 
 model Monster {

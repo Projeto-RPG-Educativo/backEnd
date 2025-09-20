@@ -14,6 +14,16 @@ export const getCharacterHandler = async (req: Request, res: Response) => {
   }
 };
 
+export const getMyCharactersHandler = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.id;
+    const characters = await characterService.findCharactersByUserId(userId);
+    res.status(200).json(characters);
+  } catch (error: any) {
+    res.status(500).json({ message: 'Erro ao buscar personagens.', error: error.message });
+  }
+};
+
 export const saveProgressHandler = async (req: Request, res: Response) => {
   try {
     const { characterId, xp, hp } = req.body;

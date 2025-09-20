@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// As funções findCharacterById e updateCharacterProgress já estão corretas
 export const findCharacterById = async (id: number) => {
   return await prisma.character.findUnique({ where: { id } });
 };
@@ -13,59 +14,58 @@ export const updateCharacterProgress = async (characterId: number, xp: number, h
 
   return await prisma.character.update({
     where: { id: characterId },
-    data: {
-      xp: { increment: xp },
-      hp: hp,
-    },
+    data: { xp: { increment: xp }, hp: hp },
   });
 };
 
-export const createCharacter = async (userId: number, characterData: { nome: string, nomeDaClasse: string }) => {
-  // --- Buscar a classe pelo nome para obter o ID ---
-  const characterClass = await prisma.class.findUnique({
-    where: { name: characterData.nomeDaClasse },
-  });
-
-  // Se a classe escolhida não existir no banco, retorna um erro
-  if (!characterClass) {
-    throw new Error(`Classe '${characterData.nomeDaClasse}' não encontrada.`);
-  }
-
-  // --- Verificar se o usuário já possui um personagem ---
-  const existingCharacter = await prisma.character.findUnique({
-    where: { userId: userId },
-  });
-
-  if (existingCharacter) {
-    throw new Error('Este usuário já possui um personagem.');
-  }
-
-  // --- Criar o personagem usando o ID da classe ---
-  const newCharacter = await prisma.character.create({
-    data: {
-      nome: characterData.nome,
-      hp: characterClass.hp, // Pega o HP inicial da classe!
-      xp: 0,
-      // Conecta com o usuário que está criando o personagem
-      user: {
-        connect: { id: userId },
-      },
-      // Conecta com a classe usando o ID que encontramos
-      class: {
-        connect: { id: characterClass.id },
-      },
-      // ATENÇÃO:verficar o campo classe do character, tipo string, ver se precisa remover
-      classe: characterClass.name, 
+// --- FUNÇÃO createCharacter TOTALMENTE CORRIGIDA ---
+export const createCharacter = async (userId: number, characterData: { nome: string, classe: string, hp: number }) => {
+  // 1. Busca a classe pelo nome (insensível a maiúsculas/minúsculas)
+  const characterClass = await prisma.class.findFirst({
+    where: { 
+      name: {
+        equals: characterData.classe,
+        mode: 'insensitive',
+      }
     },
   });
 
-  // --- Criar um inventário vazio para o novo personagem ---
+  if (!characterClass) {
+    throw new Error(`Classe '${characterData.classe}' não encontrada no banco de dados.`);
+  }
+
+  // 2. A verificação de personagem duplicado foi removida para permitir múltiplos personagens.
+
+  // 3. Cria o personagem no banco de dados
+  const newCharacter = await prisma.character.create({
+    data: {
+      nome: characterData.nome,
+      hp: characterData.hp,
+      xp: 0,
+      classe: characterData.classe, // Salva o nome da classe
+      user: {
+        connect: { id: userId }, // Conecta a relação com o usuário
+      },
+      class: {
+        connect: { id: characterClass.id }, // Conecta a relação com a classe
+      },
+    },
+  });
+
+  // 4. Cria um inventário vazio para o novo personagem
   await prisma.inventory.create({
     data: {
       characterId: newCharacter.id
     }
   });
 
-
   return newCharacter;
+};
+
+// Garanta que esta função para listar personagens também exista
+export const findCharactersByUserId = async (userId: number) => {
+  return await prisma.character.findMany({
+    where: { userId },
+    include: { class: true },
+  });
 };
