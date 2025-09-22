@@ -1,11 +1,13 @@
 import { Router } from 'express';
-import { startBattleHandler, submitAnswerHandler, saveProgressHandler} from '../controllers/battleController';
+import { startBattleHandler, submitAnswerHandler, saveProgressHandler } from '../controllers/battleController';
 import { authMiddleware } from '../middleware/authMiddleware';
 
 const router = Router();
 
-// Todas as rotas de batalha exigem que o usuário esteja logado.
-// Por isso, aplicamos o authMiddleware em ambas.
+// ✅ CORREÇÃO FINAL:
+// Removemos o 'router.use(authMiddleware)' global do arquivo.
+// E voltamos a aplicar o middleware de forma explícita em cada rota.
+// Como o authMiddleware agora lida com 'OPTIONS', esta é a forma mais segura e garantida.
 
 // Rota para iniciar uma nova batalha
 router.post('/iniciar', authMiddleware, startBattleHandler);

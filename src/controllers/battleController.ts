@@ -24,6 +24,11 @@ export const startBattleHandler = async (req: Request, res: Response) => {
 
 // Controller para processar a resposta do jogador
 export const submitAnswerHandler = async (req: Request, res: Response) => {
+
+  console.log('--- DADOS DO TOKEN (req.user): ---');
+  console.log(req.user);
+  console.log('------------------------------------');
+
   try {
     const userId = req.user.id;
     const { battleId, questionId, answer } = req.body; // O front-end envia os dados da jogada

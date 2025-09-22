@@ -11,6 +11,13 @@ declare global {
 }
 
 export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  // ✅ INÍCIO DA CORREÇÃO
+  // Adicionado para lidar com a requisição de 'preflight' do CORS.
+  if (req.method === 'OPTIONS') {
+    return next();
+  }
+  // ✅ FIM DA CORREÇÃO
+
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Formato "Bearer TOKEN"
 
