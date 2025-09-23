@@ -37,7 +37,7 @@ model Character {
   lastSavedAt   DateTime @default(now()) 
   // Relação: Um personagem pertence a um usuário
   user      User    @relation(fields: [userId], references: [id])
-  userId    Int     @unique // Garante que um usuário só pode ter um personagem
+  userId    Int
   // Relação um personagem tem uma classe
   class     Class    @relation(fields: [classId], references: [id])
   classId   Int

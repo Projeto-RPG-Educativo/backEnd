@@ -19,8 +19,10 @@ export const updateCharacterProgress = async (characterId: number, xp: number, h
 };
 
 // --- FUNÇÃO createCharacter TOTALMENTE CORRIGIDA ---
-export const createCharacter = async (userId: number, characterData: { nome: string, classe: string, hp: number }) => {
-  // 1. Busca a classe pelo nome (insensível a maiúsculas/minúsculas)
+export const createCharacter = async (userId: number, characterData: { classe: string }) => {
+  // A verificação de personagem existente foi removida.
+  
+  // 1. Busca os dados da classe para a criação
   const characterClass = await prisma.class.findFirst({
     where: { 
       name: {
@@ -34,38 +36,29 @@ export const createCharacter = async (userId: number, characterData: { nome: str
     throw new Error(`Classe '${characterData.classe}' não encontrada no banco de dados.`);
   }
 
-  // 2. A verificação de personagem duplicado foi removida para permitir múltiplos personagens.
-
-  // 3. Cria o personagem no banco de dados
+  // 2. Cria o novo personagem no banco de dados sem verificar.
   const newCharacter = await prisma.character.create({
     data: {
-      nome: characterData.nome,
-      hp: characterData.hp,
+      nome: `Herói ${characterClass.name}`,
+      hp: characterClass.hp,
       xp: 0,
-      classe: characterData.classe, // Salva o nome da classe
+      classe: characterClass.name,
       user: {
-        connect: { id: userId }, // Conecta a relação com o usuário
+        connect: { id: userId },
       },
       class: {
-        connect: { id: characterClass.id }, // Conecta a relação com a classe
+        connect: { id: characterClass.id },
       },
     },
   });
 
-  // 4. Cria um inventário vazio para o novo personagem
+  // 3. Cria um inventário vazio para o novo personagem
   await prisma.inventory.create({
     data: {
       characterId: newCharacter.id
     }
   });
 
+  console.log(`[SERVICE] Novo personagem criado para o usuário ${userId}.`);
   return newCharacter;
-};
-
-// Garanta que esta função para listar personagens também exista
-export const findCharactersByUserId = async (userId: number) => {
-  return await prisma.character.findMany({
-    where: { userId },
-    include: { class: true },
-  });
 };

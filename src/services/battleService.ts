@@ -10,9 +10,12 @@ const activeBattles: any = {};
 export const startBattle = async (userId: number, monsterId: number) => {
   try {
     const character = await prisma.character.findFirst({
-      where: { userId: userId },
-      include: { class: true },
-    });
+    where: { userId: userId },
+    include: { class: true },
+    orderBy: {
+      id: 'desc' // Ordena por ID decrescente, pegando o personagem mais novo
+    }
+  });
 
     const monster = await prisma.monster.findUnique({ where: { id: monsterId } });
 
