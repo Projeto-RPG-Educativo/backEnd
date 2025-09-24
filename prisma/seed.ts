@@ -7,12 +7,12 @@ async function main() {
 
   const classes = await prisma.class.createMany({
     data: [
-      { name: 'tank', hp: 150, mp: 20, strength: 80, intelligence: 20 },
-      { name: 'mago', hp: 80, mp: 150, strength: 20, intelligence: 150 },
-      { name: 'lutador', hp: 120, mp: 10, strength: 120, intelligence: 10 },
-      { name: 'ladino', hp: 90, mp: 30, strength: 90, intelligence: 90 },
-      { name: 'paladino', hp: 130, mp: 50, strength: 100, intelligence: 50 },
-      { name: 'bardo', hp: 100, mp: 100, strength: 50, intelligence: 100 },
+      { name: 'tank', hp: 150, mp: 20, strength: 15, intelligence: 2 },
+      { name: 'mago', hp: 80, mp: 150, strength: 2, intelligence: 25 },
+      { name: 'lutador', hp: 120, mp: 10, strength: 20, intelligence: 2 },
+      { name: 'ladino', hp: 90, mp: 30, strength: 20, intelligence: 9 },
+      { name: 'paladino', hp: 130, mp: 50, strength: 18, intelligence: 5 },
+      { name: 'bardo', hp: 85, mp: 100, strength: 5, intelligence: 15 },
     ],
     skipDuplicates: true, // Isso evita erros se você rodar o script mais de uma vez
   });
@@ -136,8 +136,8 @@ async function main() {
 
   const monsters = await prisma.monster.createMany({
     data: [
-        { nome: 'Diabrete Errôneo', hp: 50, dano: 10 },
-        { nome: 'Esqueleto da Sintaxe', hp: 80, dano: 20 },
+        { nome: 'Diabrete Errôneo', hp: 150, dano: 10 },
+        { nome: 'Esqueleto da Sintaxe', hp: 500, dano: 20 },
         { nome: 'Lexicógrafo, o Guardião do Vazio', hp: 1500, dano: 40 },
         { nome: 'Malak, O Silenciador', hp: 5000, dano: 100 },
     ],
