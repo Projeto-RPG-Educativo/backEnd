@@ -45,7 +45,7 @@ export const startBattle = async (userId: number, monsterId: number) => {
         strength: character.class.strength || 5,
         intelligence: character.class.intelligence || 5,
       },
-      monster: { id: monster.id, hp: monster.hp, dano: monster.dano },
+      monster: { id: monster.id, hp: monster.hp, dano: monster.dano, nome: monster.nome },
       currentQuestion: {
         id: firstQuestion.id,
         texto: firstQuestion.texto_pergunta,
