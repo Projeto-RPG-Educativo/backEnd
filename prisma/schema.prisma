@@ -15,7 +15,7 @@ model User {
   criado_em     DateTime @default(now())
 
   // Relação: Um usuário tem um personagem
-  character     Character?
+  character     Character[]
 }
 
 model Class {
