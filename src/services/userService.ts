@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { BadRequestError } from '../errors/BadRequestError';
+import { UnauthorizedError } from '../errors/UnauthorizedError';
 
 const prisma = new PrismaClient();
 
@@ -11,7 +13,7 @@ export const registerUser = async (userData: any) => {
 
   const existingUser = await prisma.user.findUnique({ where: { nome_usuario: userData.nome_usuario } });
   if (existingUser) {
-    throw new Error('Este nome de usuário já está em uso.');
+    throw new BadRequestError('Este nome de usuário já está em uso.');
   }
 
   const senha_hash = await bcrypt.hash(userData.senha, 10);
@@ -37,7 +39,7 @@ export const loginUser = async (nome_usuario: string, senha: string) => {
   const user = await prisma.user.findUnique({ where: { nome_usuario: nome_usuario } });
   if (!user) {
     console.log("FALHA: Usuário não encontrado no banco de dados.");
-    throw new Error('Credenciais inválidas.');
+    throw new UnauthorizedError('Credenciais inválidas.');
   }
   console.log("SUCESSO: Usuário encontrado:", user);
 
@@ -45,7 +47,7 @@ export const loginUser = async (nome_usuario: string, senha: string) => {
   const isPasswordValid = await bcrypt.compare(senha, user.senha_hash);
   if (!isPasswordValid) {
     console.log("FALHA: A comparação de senhas retornou 'false'. A senha está incorreta.");
-    throw new Error('Credenciais inválidas.');
+    throw new UnauthorizedError('Credenciais inválidas.');
   }
   console.log("SUCESSO: Senha válida!");
 

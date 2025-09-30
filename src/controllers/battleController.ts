@@ -75,58 +75,33 @@ export const saveProgressHandler = async (req: Request, res: Response) => {
 };
 
 export const handleBattleAction = async (req: Request, res: Response) => {
-
   try {
-    // A ação (ex: "ATTACK") e dados extras (ex: a resposta) vêm no corpo da requisição
-    const { action, answer } = req.body;
-    
-    // O ID do usuário vem do middleware de autenticação (authMiddleware)
+    const { action } = req.body;
     const userId = req.user.id;
-
-    // Recupera a batalha ativa para obter o battleId
-    const battle = battleService.getActiveBattle(userId);
-    if (!battle) {
-      return res.status(404).json({ message: "Nenhuma batalha ativa encontrada." });
-    }
-    const { battleId } = battle;
-
     let result;
 
-    // O switch direciona para a função de serviço correta
+    // O switch direciona para a função de serviço orquestradora correta
     switch (action.toUpperCase()) {
       case 'ATTACK':
-        result = await battleService.attack(userId, battleId);
+        result = await battleService.attack(userId);
         break;
 
       case 'DEFEND':
-        result = await battleService.defend(userId, battleId);
-        break;
-
-      case 'ABILITY':
-        result = await battleService.useSkill(userId, battleId);
+        result = await battleService.defend(userId);
         break;
       
-      case 'ANSWER':
-        // A ação de responder uma pergunta também é uma ação de combate
-        // O front-end deve enviar: { action: "ANSWER", answer: "texto da resposta" }
-        if (!answer) {
-            return res.status(400).json({ message: "A resposta da pergunta é necessária." });
-        }
-        result = await battleService.processAnswer(userId, battleId, battle.currentQuestion.id, answer);
+      case 'ABILITY': // ✅ CASO DA HABILIDADE ADICIONADO
+        result = await battleService.useSkill(userId);
         break;
-
-      // Adicione aqui os casos para 'ITEM' e 'FLEE' no futuro
 
       default:
         return res.status(400).json({ message: "Ação de batalha inválida." });
     }
 
-    // Se a ação foi processada com sucesso, envia o resultado para o front-end
     res.status(200).json(result);
 
   } catch (error: any) {
-    // Se qualquer serviço lançar um erro (ex: "Energia insuficiente"), ele é capturado aqui
-    console.error("Erro em handleBattleAction:", error.message);
+    // Erros como "Energia insuficiente" lançados pelo serviço serão capturados aqui
     res.status(400).json({ message: error.message });
   }
 };

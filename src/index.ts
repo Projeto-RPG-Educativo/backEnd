@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors'; 
+import { errorMiddleware } from './middleware/errorMiddleware';
 import userRoutes from './routes/userRoutes';
 import characterRoutes from './routes/characterRoutes';
 import battleRoutes from './routes/battleRoutes';
@@ -27,6 +28,8 @@ app.use('/api/usuarios', userRoutes);
 app.use('/api/character', characterRoutes);
 app.use('/api/batalha', battleRoutes);
 app.use('/api/perguntas', questionRoutes);
+
+app.use(errorMiddleware);
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando com sucesso na porta ${PORT}`);
