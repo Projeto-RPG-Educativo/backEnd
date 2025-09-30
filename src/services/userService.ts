@@ -51,7 +51,7 @@ export const loginUser = async (nome_usuario: string, senha: string) => {
 
   // Passo 3: Gerar o Token JWT
   const secretKey = process.env.JWT_SECRET || 'sua_chave_secreta_padrao';
-  const token = jwt.sign({ id: user.id, nome_usuario: user.nome_usuario }, secretKey, { expiresIn: '1h' });
+  const token = jwt.sign({ id: user.id, nome_usuario: user.nome_usuario }, secretKey, { expiresIn: '10h' });
   console.log("SUCESSO: Token JWT gerado.");
 
   // Passo 4: Retornar os dados do usuário e o token

@@ -34,6 +34,8 @@ model Character {
   classe    String
   xp        Int     @default(0)
   hp        Int
+  energy    Int     @default(10)
+  maxEnergy Int     @default(10)
   lastSavedAt   DateTime @default(now()) 
   // Relação: Um personagem pertence a um usuário
   user      User    @relation(fields: [userId], references: [id])
