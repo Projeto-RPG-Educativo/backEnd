@@ -328,3 +328,7 @@ export const useSkill = async (userId: number, battleId: number) => {
 
   return { ...battle, turnResult: log.join(' '), uiEffect };
 };
+
+export const getActiveBattle = (userId: number) => {
+  return activeBattles[userId];
+};

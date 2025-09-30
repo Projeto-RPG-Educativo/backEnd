@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { startBattleHandler, submitAnswerHandler, saveProgressHandler } from '../controllers/battleController';
+import { startBattleHandler, submitAnswerHandler, saveProgressHandler, handleBattleAction } from '../controllers/battleController';
 import { authMiddleware } from '../middleware/authMiddleware';
 
 const router = Router();
@@ -17,5 +17,7 @@ router.post('/responder', authMiddleware, submitAnswerHandler);
 
 // Rota para salvar o progresso do personagem
 router.post('/salvar-progresso', authMiddleware, saveProgressHandler);
+
+router.post('/action', authMiddleware, handleBattleAction);
 
 export default router;
