@@ -17,6 +17,6 @@ export const saveGameHandler = async (req: Request, res: Response) => {
 
 export const listSavesHandler = async (req: Request, res: Response) => {
   const userId = req.user.id;
-  const saves = await saveService.getSavesForUser(userId);
-  res.status(200).json(saves);
+  const saves = await saveService.getSavesForUser(userId); // Busca os saves
+  res.status(200).json(saves); // Devolve status 200 e os dados
 };

@@ -50,6 +50,18 @@ export const createOrUpdateSave = async (
 export const getSavesForUser = async (userId: number) => {
   const saves = await prisma.gameSave.findMany({
     where: { userId },
+    // ADIÇÃO CHAVE: Incluir o objeto Character relacionado
+    include: {
+      character: {
+        select: {
+          // Selecione os campos do personagem que você quer mostrar na tela de carregamento
+          id: true,
+          nome: true, // Assumindo que o campo é 'nome'
+          classe: true, // Classe do personagem
+          // Você pode incluir outros campos do personagem aqui
+        },
+      },
+    },
     orderBy: {
       savedAt: 'desc',
     },

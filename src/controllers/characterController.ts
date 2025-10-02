@@ -36,7 +36,7 @@ export const createCharacterHandler = async (req: Request, res: Response) => {
 
     // 3. Delega a lógica de criação para a camada de serviço.
     const newCharacter = await characterService.createCharacter(userId, characterData);
-
+    
     // 4. Se tudo deu certo, retorna o status 201 (Created) e o personagem recém-criado.
     res.status(201).json(newCharacter);
   } catch (error: any) {

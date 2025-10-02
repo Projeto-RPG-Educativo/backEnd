@@ -9,7 +9,7 @@ const router = Router();
 router.use(authMiddleware);
 
 // GET /api/saves - Rota para listar os saves do usuário logado
-router.get('/', errorMiddleware ,listSavesHandler);
+router.get('/', listSavesHandler); 
 
 // POST /api/saves - Rota para criar/atualizar um save
 router.post('/', errorMiddleware, saveGameHandler);
