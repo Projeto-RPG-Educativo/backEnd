@@ -6,6 +6,7 @@ import userRoutes from './routes/userRoutes';
 import characterRoutes from './routes/characterRoutes';
 import battleRoutes from './routes/battleRoutes';
 import questionRoutes from './routes/questionRoutes';
+import saveRoutes from './routes/saveRoutes';
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.use('/api/usuarios', userRoutes);
 app.use('/api/character', characterRoutes);
 app.use('/api/batalha', battleRoutes);
 app.use('/api/perguntas', questionRoutes);
+app.use('/api/saves', saveRoutes); 
 
 app.use(errorMiddleware);
 

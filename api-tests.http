@@ -1,0 +1,77 @@
+### ==========================================================
+###           ARQUIVO COMPLETO DE TESTES DA API RPG
+### ==========================================================
+# 
+# Instruções:
+# 1. Altere os dados de login no Passo 1.
+# 2. Execute as requisições em ordem (1, 2, 3, 4, 5).
+# 3. Após o Passo 2, copie o "id" do personagem criado e cole no "characterId" do Passo 4.
+#
+### ==========================================================
+
+# Variáveis Globais
+@baseUrl = http://localhost:3000/api
+@token = 
+
+### ==========================================================
+###   PASSO 1: FAZER LOGIN PARA OBTER TOKEN DE AUTENTICAÇÃO
+### ==========================================================
+# @name loginRequest
+POST {{baseUrl}}/usuarios/login
+Content-Type: application/json
+
+{
+  "nome_usuario": "murilo",
+  "senha": "senha123"
+}
+
+### Captura o token da resposta para usar nas próximas requisições
+@token = {{loginRequest.response.body.token}}
+
+
+### ==========================================================
+###       PASSO 2: CRIAR UM NOVO PERSONAGEM PARA O USUÁRIO
+### ==========================================================
+POST {{baseUrl}}/character/criar
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "classe": "Mago"
+}
+
+
+### ==========================================================
+###            PASSO 3: LISTAR SAVES (ANTES DE CRIAR)
+### ==========================================================
+# Este comando deve retornar um array vazio: []
+GET {{baseUrl}}/saves
+Authorization: Bearer {{token}}
+
+
+### ==========================================================
+###           PASSO 4: CRIAR UM NOVO SAVE PARA O JOGO
+### ==========================================================
+POST {{baseUrl}}/saves
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "characterId": 1,
+  "slotName": "Minha Aventura 2",
+  "characterState": {
+    "hp": 150,
+    "xp": 25,
+    "energy": 98,
+    "level": 1,
+    "location": "Vila Inicial"
+  }
+}
+
+
+### ==========================================================
+###          PASSO 5: LISTAR SAVES (DEPOIS DE CRIAR)
+### ==========================================================
+# Agora este comando deve retornar um array com o save que você acabou de criar
+GET {{baseUrl}}/saves
+Authorization: Bearer {{token}}
